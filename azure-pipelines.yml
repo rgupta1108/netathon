@@ -1,0 +1,40 @@
+trigger:
+  branches:
+    include:
+    - develop  
+   
+pool:
+  name: Azure Pipelines
+  vmImage: 'windows-2022'
+
+stages:
+  
+  - stage: build
+    variables:
+      npm_config_cache: $(Pipeline.Workspace)/CLI/.npm 
+    jobs:
+      - job:
+           
+        steps:        
+          - task: NodeTool@0
+            displayName: 'Use Node 16.x'
+            inputs:
+              versionSpec: 16.x
+
+          - task: Npm@1
+            inputs:
+              command: 'custom'
+              workingDir: 'package.json'
+              customCommand: 'install -g @angular/cli@14.2.2'
+
+          - task: DeleteFiles@1
+            displayName: 'Delete files from CLI package-lock.json'
+            inputs:
+              SourceFolder: CLI
+              Contents: 'package-lock.json'
+
+          - task: DeleteFiles@1
+            displayName: 'Delete files from CLI node modules'
+            inputs:
+              SourceFolder: CLI
+              Contents: 'node_modules'
